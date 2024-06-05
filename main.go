@@ -28,6 +28,7 @@ func main() {
 	// Define routes
 	app.Post("/customers", customerHandler.CreateCustomerHandler)
 	app.Get("/customers/:id", customerHandler.GetCustomerHandler)
+	app.Get("/customers", customerHandler.GetAllCustomerHandler)
 
 	// Start the server
 	app.Listen("localhost:8080")

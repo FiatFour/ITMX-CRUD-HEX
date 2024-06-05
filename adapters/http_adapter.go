@@ -49,3 +49,15 @@ func (h *HttpCustomerHandler) GetCustomerHandler(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(customer)
 }
+
+func (h *HttpCustomerHandler) GetAllCustomerHandler(c *fiber.Ctx) error {
+	var customers []core.Customer
+
+	customers, err := h.service.GetAllCustomer()
+	if err != nil {
+		// Return an appropriate error message and status code
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(customers)
+}

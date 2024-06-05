@@ -34,3 +34,15 @@ func (r *GormCustomerRepository) Get(customerId int) (*core.Customer, error) {
 	// fmt.Println(customer)
 	return &customer, nil
 }
+
+func (r *GormCustomerRepository) GetAll() ([]core.Customer, error) {
+	var customers []core.Customer
+
+	result := r.db.Table("customers").Find(&customers)
+
+	if result.Error != nil {
+		return []core.Customer{}, result.Error
+	}
+	// fmt.Println(customers)
+	return customers, nil
+}

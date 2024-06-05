@@ -9,6 +9,7 @@ import (
 type CustomerService interface {
 	CreateCustomer(customer Customer) error
 	GetCustomerById(customerId int) (*Customer, error)
+	GetAllCustomer() ([]Customer, error)
 }
 
 type customerServiceImpl struct {
@@ -42,4 +43,15 @@ func (s *customerServiceImpl) GetCustomerById(customerId int) (*Customer, error)
 		return &Customer{}, err
 	}
 	return customer, nil
+}
+
+func (s *customerServiceImpl) GetAllCustomer() ([]Customer, error) {
+	// Business logic...
+	var customers []Customer
+	customers, err := s.r.GetAll()
+
+	if err != nil {
+		return []Customer{}, err
+	}
+	return customers, nil
 }
