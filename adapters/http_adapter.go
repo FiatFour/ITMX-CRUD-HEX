@@ -28,7 +28,8 @@ func (h *HttpCustomerHandler) CreateCustomerHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(customer)
+	// return c.Status(fiber.StatusCreated).JSON(customer)
+	return c.Status(fiber.StatusCreated).SendString("Created successfully!")
 }
 
 func (h *HttpCustomerHandler) GetCustomerHandler(c *fiber.Ctx) error {
@@ -60,4 +61,46 @@ func (h *HttpCustomerHandler) GetAllCustomerHandler(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(customers)
+}
+
+func (h *HttpCustomerHandler) UpdateCustomerHandler(c *fiber.Ctx) error {
+	var customer core.Customer
+	if err := c.BodyParser(&customer); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
+	}
+
+	customerId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
+	}
+
+	updatedCustomer, err := h.service.UpdateCustomer(customerId, &customer)
+	if err != nil {
+		// Return an appropriate error message and status code
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// return c.Status(fiber.StatusCreated).JSON(updatedCustomer)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"status": "Updated successfully!",
+		"id":     updatedCustomer.ID,
+		"name":   updatedCustomer.Name,
+		"age":    updatedCustomer.Age,
+	})
+}
+
+func (h *HttpCustomerHandler) DeleteCustomerHandler(c *fiber.Ctx) error {
+	customerId, err := strconv.Atoi(c.Params("id"))
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
+	}
+
+	err = h.service.DeleteCustomer(customerId)
+	if err != nil {
+		// Return an appropriate error message and status code
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).SendString("Deleted successfully!")
 }

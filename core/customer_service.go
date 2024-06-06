@@ -10,6 +10,8 @@ type CustomerService interface {
 	CreateCustomer(customer Customer) error
 	GetCustomerById(customerId int) (*Customer, error)
 	GetAllCustomer() ([]Customer, error)
+	UpdateCustomer(customerId int, customer *Customer) (*Customer, error)
+	DeleteCustomer(customerId int) error
 }
 
 type customerServiceImpl struct {
@@ -54,4 +56,32 @@ func (s *customerServiceImpl) GetAllCustomer() ([]Customer, error) {
 		return []Customer{}, err
 	}
 	return customers, nil
+}
+
+func (s *customerServiceImpl) UpdateCustomer(customerId int, customer *Customer) (*Customer, error) {
+	if customerId < 0 {
+		return &Customer{}, errors.New("customerId must be positive")
+	}
+
+	// Business logic...
+	customer, err := s.r.Update(customerId, customer)
+
+	if err != nil {
+		return &Customer{}, err
+	}
+	return customer, nil
+}
+
+func (s *customerServiceImpl) DeleteCustomer(customerId int) error {
+	if customerId < 0 {
+		return errors.New("customerId must be positive")
+	}
+
+	// Business logic...
+	err := s.r.Delete(customerId)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

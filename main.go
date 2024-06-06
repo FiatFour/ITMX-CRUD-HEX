@@ -29,6 +29,8 @@ func main() {
 	app.Post("/customers", customerHandler.CreateCustomerHandler)
 	app.Get("/customers/:id", customerHandler.GetCustomerHandler)
 	app.Get("/customers", customerHandler.GetAllCustomerHandler)
+	app.Put("/customers/:id", customerHandler.UpdateCustomerHandler)
+	app.Delete("/customers/:id", customerHandler.DeleteCustomerHandler)
 
 	// Start the server
 	app.Listen("localhost:8080")

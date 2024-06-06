@@ -1,8 +1,11 @@
 package adapters
 
 import (
+	"fmt"
+
 	"github.com/fiatfour/itmx-crud-hex/core"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // * Secondary adapter (gorm_adapter.go)
@@ -38,11 +41,34 @@ func (r *GormCustomerRepository) Get(customerId int) (*core.Customer, error) {
 func (r *GormCustomerRepository) GetAll() ([]core.Customer, error) {
 	var customers []core.Customer
 
-	result := r.db.Table("customers").Find(&customers)
+	result := r.db.Find(&customers)
 
 	if result.Error != nil {
 		return []core.Customer{}, result.Error
 	}
-	// fmt.Println(customers)
+	// fmt.Println(customers)s
 	return customers, nil
+}
+
+func (r *GormCustomerRepository) Update(customerId int, customer *core.Customer) (*core.Customer, error) {
+
+	// result := r.db.Model(&core.Customer{}).Where("id = ?", customerId).Updates(customer)
+	result := r.db.Model(&core.Customer{}).Clauses(clause.Returning{}).Where("id = ?", customerId).Updates(customer)
+
+	if result.Error != nil {
+		return &core.Customer{}, result.Error
+	}
+	customer.ID = uint(customerId)
+	fmt.Println(customer)
+	return customer, nil
+}
+
+func (r *GormCustomerRepository) Delete(customerId int) error {
+	result := r.db.Where("id = ?", customerId).Delete(&core.Customer{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+	// fmt.Println(customer)
+	return nil
 }
