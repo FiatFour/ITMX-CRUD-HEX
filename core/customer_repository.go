@@ -8,4 +8,5 @@ type CustomerRepository interface { // Spec
 	GetAll() ([]Customer, error)                                  // Port
 	Update(customerId int, customer *Customer) (*Customer, error) // Port
 	Delete(customerId int) error                                  // Port
+	Search(customerId int) error                                  // Port
 }
