@@ -9,11 +9,11 @@ import (
 
 type CustomerService interface {
 	CreateCustomer(customer Customer) error
-	GetCustomerById(customerId int) (*Customer, error)
+	GetCustomerById(customerId uint) (*Customer, error)
 	GetAllCustomer() ([]Customer, error)
-	UpdateCustomer(customerId int, customer *Customer) (*Customer, error)
-	DeleteCustomer(customerId int) error
-	SearchCustomerById(customerId int) error
+	UpdateCustomer(customerId uint, customer *Customer) (*Customer, error)
+	DeleteCustomer(customerId uint) error
+	SearchCustomerById(customerId uint) error
 	ValidateName(customerName string) error
 }
 
@@ -43,15 +43,8 @@ func ValidateFullName(fullName string) error {
 
 func (s *customerServiceImpl) CreateCustomer(customer Customer) error {
 	// Business logic...
-	// Register the custom validation function for 'Name'
-	// validate.RegisterValidation("name", validateName)
-
-	// if err := s.r.Validate(customer.Name); err != nil {
-	// 	return err
-	// }
-
-	if customer.Age <= 0 {
-		return errors.New("age must be positive")
+	if customer.Age == 0 {
+		return errors.New("age must more than 0")
 	}
 
 	if err := s.r.Save(customer); err != nil {
@@ -61,10 +54,10 @@ func (s *customerServiceImpl) CreateCustomer(customer Customer) error {
 	return nil
 }
 
-func (s *customerServiceImpl) GetCustomerById(customerId int) (*Customer, error) {
+func (s *customerServiceImpl) GetCustomerById(customerId uint) (*Customer, error) {
 	// Business logic...
-	if customerId < 0 {
-		return &Customer{}, errors.New("customerId must be positive")
+	if customerId == 0 {
+		return &Customer{}, errors.New("customerId must more than 0")
 	}
 
 	customer, err := s.r.Get(customerId)
@@ -87,8 +80,12 @@ func (s *customerServiceImpl) GetAllCustomer() ([]Customer, error) {
 	return customers, nil
 }
 
-func (s *customerServiceImpl) UpdateCustomer(customerId int, customer *Customer) (*Customer, error) {
+func (s *customerServiceImpl) UpdateCustomer(customerId uint, customer *Customer) (*Customer, error) {
 	// Business logic...
+	if customer.Age == 0 {
+		return &Customer{}, errors.New("age must more than 0")
+	}
+
 	customer, err := s.r.Update(customerId, customer)
 
 	if err != nil {
@@ -98,7 +95,7 @@ func (s *customerServiceImpl) UpdateCustomer(customerId int, customer *Customer)
 	return customer, nil
 }
 
-func (s *customerServiceImpl) DeleteCustomer(customerId int) error {
+func (s *customerServiceImpl) DeleteCustomer(customerId uint) error {
 	// Business logic...
 	if err := s.r.Delete(customerId); err != nil {
 		return err
@@ -107,10 +104,10 @@ func (s *customerServiceImpl) DeleteCustomer(customerId int) error {
 	return nil
 }
 
-func (s *customerServiceImpl) SearchCustomerById(customerId int) error {
+func (s *customerServiceImpl) SearchCustomerById(customerId uint) error {
 	// Business logic...
-	if customerId < 0 {
-		return errors.New("customerId must be positive")
+	if customerId == 0 {
+		return errors.New("customerId must more than 0")
 	}
 
 	if err := s.r.Search(customerId); err != nil {
