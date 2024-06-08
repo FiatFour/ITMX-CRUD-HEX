@@ -43,7 +43,7 @@ func (h *HttpCustomerHandler) GetCustomerHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
 	}
 
-	customer, err := h.service.GetCustomerById(customerId)
+	customer, err := h.service.GetCustomerById(uint(customerId))
 	if err != nil {
 		// Return an appropriate error message and status code
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
@@ -80,12 +80,12 @@ func (h *HttpCustomerHandler) UpdateCustomerHandler(c *fiber.Ctx) error {
 
 	}
 
-	if err = h.service.SearchCustomerById(customerId); err != nil {
+	if err = h.service.SearchCustomerById(uint(customerId)); err != nil {
 		// Return an appropriate error message and status code
 		return c.Status(fiber.StatusNotFound).SendString(err.Error())
 	}
 
-	updatedCustomer, err := h.service.UpdateCustomer(customerId, &customer)
+	updatedCustomer, err := h.service.UpdateCustomer(uint(customerId), &customer)
 	if err != nil {
 		// Return an appropriate error message and status code
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -106,12 +106,12 @@ func (h *HttpCustomerHandler) DeleteCustomerHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
 	}
 
-	if err = h.service.SearchCustomerById(customerId); err != nil {
+	if err = h.service.SearchCustomerById(uint(customerId)); err != nil {
 		// Return an appropriate error message and status code
 		return c.Status(fiber.StatusNotFound).SendString(err.Error())
 	}
 
-	if err = h.service.DeleteCustomer(customerId); err != nil {
+	if err = h.service.DeleteCustomer(uint(customerId)); err != nil {
 		// Return an appropriate error message and status code
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
