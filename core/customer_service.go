@@ -6,7 +6,6 @@ import (
 )
 
 // ! Primary Port (customer_service.go)
-
 type CustomerService interface {
 	CreateCustomer(customer Customer) error
 	GetCustomerById(customerId uint) (*Customer, error)
@@ -17,6 +16,7 @@ type CustomerService interface {
 	ValidateName(customerName string) error
 }
 
+// Implement CustomerRepository
 type customerServiceImpl struct {
 	r CustomerRepository
 }
@@ -25,28 +25,14 @@ func NewCustomerService(repo CustomerRepository) CustomerService {
 	return &customerServiceImpl{r: repo}
 }
 
-var (
-	ErrInvalidFullName = errors.New("invalid full name")
-	fullNameRegex      = `^[A-Z][a-z]+\s[A-Z][a-z]+(?:\s[A-Z][a-z]+)*$`
-)
-
-func ValidateFullName(fullName string) error {
-	matched, err := regexp.MatchString(fullNameRegex, fullName)
-	if err != nil {
-		return err
-	}
-	if !matched {
-		return ErrInvalidFullName
-	}
-	return nil
-}
-
 func (s *customerServiceImpl) CreateCustomer(customer Customer) error {
 	// Business logic...
+	// Check Age
 	if customer.Age == 0 {
 		return errors.New("age must more than 0")
 	}
 
+	// call Save() to pass agreement value of Customer for insert in gorm adapter
 	if err := s.r.Save(customer); err != nil {
 		return err
 	}
@@ -56,10 +42,12 @@ func (s *customerServiceImpl) CreateCustomer(customer Customer) error {
 
 func (s *customerServiceImpl) GetCustomerById(customerId uint) (*Customer, error) {
 	// Business logic...
+	// Check customerId
 	if customerId == 0 {
 		return &Customer{}, errors.New("customerId must more than 0")
 	}
 
+	// call Get() to pass agreement customerId for get a Customer from gorm adapter
 	customer, err := s.r.Get(customerId)
 	if err != nil {
 		return &Customer{}, err
@@ -72,6 +60,7 @@ func (s *customerServiceImpl) GetAllCustomer() ([]Customer, error) {
 	// Business logic...
 	var customers []Customer
 
+	// call GetAll() for get all Customers from gorm adapter
 	customers, err := s.r.GetAll()
 	if err != nil {
 		return []Customer{}, err
@@ -82,10 +71,12 @@ func (s *customerServiceImpl) GetAllCustomer() ([]Customer, error) {
 
 func (s *customerServiceImpl) UpdateCustomer(customerId uint, customer *Customer) (*Customer, error) {
 	// Business logic...
+	// Check Age
 	if customer.Age == 0 {
 		return &Customer{}, errors.New("age must more than 0")
 	}
 
+	// call Update() to pass agreement customerId and Customer for update a customer in gorm adapter and return value updated
 	customer, err := s.r.Update(customerId, customer)
 
 	if err != nil {
@@ -97,6 +88,7 @@ func (s *customerServiceImpl) UpdateCustomer(customerId uint, customer *Customer
 
 func (s *customerServiceImpl) DeleteCustomer(customerId uint) error {
 	// Business logic...
+	// call Delete() to pass agreement customerId for delete a customer in gorm adapter
 	if err := s.r.Delete(customerId); err != nil {
 		return err
 	}
@@ -106,10 +98,12 @@ func (s *customerServiceImpl) DeleteCustomer(customerId uint) error {
 
 func (s *customerServiceImpl) SearchCustomerById(customerId uint) error {
 	// Business logic...
+	// Check customerId
 	if customerId == 0 {
 		return errors.New("customerId must more than 0")
 	}
 
+	// call Search() to pass agreement customerId for search a customer in gorm adapter
 	if err := s.r.Search(customerId); err != nil {
 		return err
 	}
@@ -117,13 +111,14 @@ func (s *customerServiceImpl) SearchCustomerById(customerId uint) error {
 	return nil
 }
 
+// define for validate name for checks if the value contains only alphabets and spaces
 var (
 	ErrInvalidName = errors.New("invalid name")
 	NameRegex      = `^[a-zA-Z\s]+$`
 )
 
 func (s *customerServiceImpl) ValidateName(customerName string) error {
-	// Register the custom validation function for 'Name'
+	// Validate name and check
 	matched, err := regexp.MatchString(NameRegex, customerName)
 	if err != nil {
 		return err

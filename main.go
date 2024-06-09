@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// Initialize a new instance of a Fiber application
 	app := fiber.New()
 
 	// Initialize the database connection
@@ -17,8 +18,10 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	// Migrate the schema
+	// Migrate the schema and insert a row of Customer
 	db.Migrator().CreateTable(&core.Customer{})
+	db.Create(&core.Customer{Name: "Fiat", Age: 24})
+	db.Create(&core.Customer{Name: "Anfat Nilaingan", Age: 40})
 
 	// Set up the core service and adapters
 	customerRepo := adapters.NewGormCustomerRepository(db)

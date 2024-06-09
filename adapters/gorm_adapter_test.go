@@ -16,40 +16,40 @@ func setupTestDB() *gorm.DB {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to open database: %v", err))
 	}
-	db.AutoMigrate(&core.Customer{})
+	db.Migrator().CreateTable(&core.Customer{})
 	return db
 }
 
 func TestGormCustomerRepository_Save(t *testing.T) {
 	db := setupTestDB()
-	// defer db.Rollback()
-
 	repo := NewGormCustomerRepository(db)
 
 	t.Run("successful save", func(t *testing.T) {
-		customer := core.Customer{Name: "Fiat", Age: 24}
+		customer := core.Customer{Name: "Fiat", Age: uint(24)}
+		// Save() for insert a Customer in database and check Error
 		err := repo.Save(customer)
 		assert.NoError(t, err)
 
+		// Check a row has inserted
 		var count int64
 		db.Model(&core.Customer{}).Where("name = ?", customer.Name).Count(&count)
 		assert.Equal(t, int64(1), count)
 	})
 
-	t.Run("name already exists error", func(t *testing.T) {
-		customer := core.Customer{Name: "Fiat", Age: 24}
+	t.Run("(fail) name already exists", func(t *testing.T) {
+		customer := core.Customer{Name: "Fiat", Age: uint(24)}
 		err := repo.Save(customer)
 		assert.Error(t, err)
 		assert.Equal(t, "name already exists", err.Error())
 	})
 
-	t.Run("database error on insert", func(t *testing.T) {
+	t.Run("(fail) database error on insert", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
-		customer := core.Customer{Name: "Fiat", Age: 24}
-		err := repo.Save(customer)
+		// Save() for insert a Customer in database and check Error
+		err := repo.Save(core.Customer{Name: "Fiat", Age: 24})
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "database is closed")
 	})
@@ -59,29 +59,33 @@ func TestGormCustomerRepository_Get(t *testing.T) {
 	db := setupTestDB()
 	repo := NewGormCustomerRepository(db)
 
-	t.Run("successful save", func(t *testing.T) {
-		customer := core.Customer{Name: "Fiat", Age: 24}
-		err := repo.Save(customer)
+	t.Run("successful get", func(t *testing.T) {
+		// Save() for insert a Customer in database and check Error
+		err := repo.Save(core.Customer{Name: "Fiat", Age: 24})
 		assert.NoError(t, err)
 
-		var count int64
-		db.Model(&core.Customer{}).Where("name = ?", customer.Name).Count(&count)
-		assert.Equal(t, int64(1), count)
+		// Get() for get a Customer by Id from database and check Value/Error
+		getCustomer, err := repo.Get(1)
+		assert.NoError(t, err)
+		assert.Equal(t, "Fiat", getCustomer.Name)
+		assert.Equal(t, uint(24), getCustomer.Age)
 	})
 
-	t.Run("customer not found", func(t *testing.T) {
-		customer, err := repo.Get(999)
+	t.Run("(fail) customer not found", func(t *testing.T) {
+		// Get() for get a Customer by Id from database and check Value/Error
+		customer, err := repo.Get(uint(999))
 		assert.Error(t, err)
 		assert.Equal(t, &core.Customer{}, customer)
 		assert.Equal(t, gorm.ErrRecordNotFound, err)
 	})
 
-	t.Run("database error on insert", func(t *testing.T) {
+	t.Run("(fail) database error on get", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
-		customer, err := repo.Get(999)
+		// Get() for get a Customer by Id from database and check Value/Error
+		customer, err := repo.Get(uint(999))
 		assert.Error(t, err)
 		assert.Equal(t, &core.Customer{}, customer)
 		assert.Contains(t, err.Error(), "database is closed")
@@ -92,30 +96,33 @@ func TestGormCustomerRepository_GetAll(t *testing.T) {
 	db := setupTestDB()
 	repo := NewGormCustomerRepository(db)
 
-	t.Run("successfully get all customers", func(t *testing.T) {
-		// Setup: Create some customers in the database
-		customers := []core.Customer{
-			{Name: "Fiat", Age: 24},
-			{Name: "Anfat", Age: 40},
+	t.Run("successful get all customers", func(t *testing.T) {
+		// setup Customers
+		expectedCustomers := []core.Customer{
+			{Name: "Fiat", Age: uint(24)},
+			{Name: "Anfat", Age: uint(40)},
 		}
-		for _, customer := range customers {
-			err := db.Create(&customer).Error
+
+		// Save() loop for insert Customers and check Error
+		for _, customer := range expectedCustomers {
+			err := repo.Save(customer)
 			assert.NoError(t, err)
 		}
 
-		// Act: get all customers
+		// get all Customers from database and check Value/Error
 		getCustomers, err := repo.GetAll()
 		assert.NoError(t, err)
 		assert.Len(t, getCustomers, 2)
-		assert.Equal(t, customers[0].Name, getCustomers[0].Name)
-		assert.Equal(t, customers[1].Name, getCustomers[1].Name)
+		assert.Equal(t, expectedCustomers[0].Name, getCustomers[0].Name)
+		assert.Equal(t, expectedCustomers[1].Name, getCustomers[1].Name)
 	})
 
-	t.Run("database error on get all", func(t *testing.T) {
+	t.Run("(fail) database error on get all", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
+		// get all Customers from database and check Value/Error
 		_, err := repo.GetAll()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "database is closed")
@@ -126,21 +133,25 @@ func TestGormCustomerRepository_Update(t *testing.T) {
 	db := setupTestDB()
 	repo := NewGormCustomerRepository(db)
 
+	// setup Customers
 	customers := []core.Customer{
-		{Name: "Fiat", Age: 24},
-		{Name: "Anfat", Age: 40},
-		{Name: "Nilaingan", Age: 70},
-		{Name: "Hi", Age: 20},
+		{Name: "Fiat", Age: uint(24)},
+		{Name: "Anfat", Age: uint(40)},
+		{Name: "Nilaingan", Age: uint(70)},
+		{Name: "Hi", Age: uint(20)},
 	}
 
 	t.Run("successful update", func(t *testing.T) {
+		// Save() for insert a Customer in database and check Error
 		err := repo.Save(customers[0])
 		assert.NoError(t, err)
 
+		// Check a row has inserted
 		var count int64
 		db.Model(&core.Customer{}).Where("name = ?", customers[0].Name).Count(&count)
 		assert.Equal(t, int64(1), count)
 
+		// Update() for update a Customer by Id with Customer[1] in database and check Value/Error
 		updatedCustomer, err := repo.Update(uint(1), &customers[1])
 		assert.NoError(t, err)
 		assert.Equal(t, uint(1), updatedCustomer.ID)
@@ -148,7 +159,7 @@ func TestGormCustomerRepository_Update(t *testing.T) {
 		assert.Equal(t, &customers[1].Age, &updatedCustomer.Age)
 	})
 
-	t.Run("name already exists error", func(t *testing.T) {
+	t.Run("(fail) name already exists error", func(t *testing.T) {
 		err := repo.Save(customers[2])
 		assert.NoError(t, err)
 		updatedCustomer, err := repo.Update(uint(1), &customers[2])
@@ -157,11 +168,12 @@ func TestGormCustomerRepository_Update(t *testing.T) {
 		assert.Equal(t, "name already exists", err.Error())
 	})
 
-	t.Run("database error on update", func(t *testing.T) {
+	t.Run("(fail) database error on update", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
+		// Update() for update a Customer by Id with Customer[3] in database and check Value/Error
 		updatedCustomer, err := repo.Update(uint(1), &customers[3])
 		assert.Error(t, err)
 		assert.Equal(t, &core.Customer{}, updatedCustomer)
@@ -174,27 +186,26 @@ func TestGormCustomerRepository_Delete(t *testing.T) {
 	repo := NewGormCustomerRepository(db)
 
 	t.Run("successful delete", func(t *testing.T) {
-		err := repo.Save(core.Customer{Name: "Fiat", Age: 24})
+		// Save() for insert a Customer in database and check Error
+		err := repo.Save(core.Customer{Name: "Fiat", Age: uint(24)})
 		assert.NoError(t, err)
 
+		// Check a row has inserted
 		var count int64
 		db.Model(&core.Customer{}).Where("name = ?", "Fiat").Count(&count)
 		assert.Equal(t, int64(1), count)
 
+		// Delete() for delete a Customer by Id in database and check Error
 		err = repo.Delete(uint(999))
 		assert.NoError(t, err)
 	})
 
-	t.Run("delete when don't have value of that row", func(t *testing.T) {
-		err := repo.Delete(uint(999))
-		assert.NoError(t, err)
-	})
-
-	t.Run("database error on delete", func(t *testing.T) {
+	t.Run("(fail) database error on delete", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
+		// Delete() for delete a Customer by Id in database and check Error
 		err := repo.Delete(uint(1))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "database is closed")
@@ -205,28 +216,33 @@ func TestGormCustomerRepository_Search(t *testing.T) {
 	db := setupTestDB()
 	repo := NewGormCustomerRepository(db)
 
-	t.Run("successful delete", func(t *testing.T) {
-		err := repo.Save(core.Customer{Name: "Fiat", Age: 24})
+	t.Run("successful search", func(t *testing.T) {
+		// Save() for insert a Customer in database and check Error
+		err := repo.Save(core.Customer{Name: "Fiat", Age: uint(24)})
 		assert.NoError(t, err)
 
+		// Check a row has inserted
 		var count int64
 		db.Model(&core.Customer{}).Where("name = ?", "Fiat").Count(&count)
 		assert.Equal(t, int64(1), count)
 
+		// Search() for search a Customer by Id from database and check Error
 		err = repo.Search(uint(1))
 		assert.NoError(t, err)
 	})
 
-	t.Run("not found for search", func(t *testing.T) {
+	t.Run("(fail) not found on search", func(t *testing.T) {
+		// Search() for search a Customer by Id from database and check Error
 		err := repo.Search(uint(999))
 		assert.Error(t, err)
 	})
 
-	t.Run("database error on search", func(t *testing.T) {
+	t.Run("(fail) database error on search", func(t *testing.T) {
 		// Close the database to force an error
 		sqlDB, _ := db.DB()
 		sqlDB.Close()
 
+		// Search() for search a Customer by Id from database and check Value/Error
 		err := repo.Search(uint(1))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "database is closed")
