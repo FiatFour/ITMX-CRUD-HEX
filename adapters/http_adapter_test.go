@@ -109,7 +109,7 @@ func TestCreateCustomerHandler(t *testing.T) {
 		// check Error and Status
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -127,7 +127,7 @@ func TestCreateCustomerHandler(t *testing.T) {
 		// check Error and Status
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -146,7 +146,7 @@ func TestCreateCustomerHandler(t *testing.T) {
 		// check Error and Status
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 }
@@ -176,7 +176,7 @@ func TestGetCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&customer)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedCustomer, &customer)
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -213,7 +213,7 @@ func TestGetCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "customer not found", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 }
@@ -251,7 +251,7 @@ func TestGetAllCustomerHandler(t *testing.T) {
 			assert.Equal(t, expectedCustomers[index].Name, customer.Name)
 			assert.Equal(t, expectedCustomers[index].Age, customer.Age)
 		}
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -274,7 +274,7 @@ func TestGetAllCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "service error", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 }
@@ -311,7 +311,7 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		assert.Equal(t, float64(1), response["id"])
 		assert.Equal(t, "Updated Name", response["name"])
 		assert.Equal(t, float64(24), response["age"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -345,7 +345,7 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "invalid request", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -368,7 +368,7 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "invalid name", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -393,7 +393,7 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		response, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "customer not found", string(response))
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -421,7 +421,7 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "service error", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -452,7 +452,7 @@ func TestDeleteCustomerHandler(t *testing.T) {
 		response, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "Deleted successfully!", string(response))
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -473,7 +473,7 @@ func TestDeleteCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "invalid request", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -497,7 +497,7 @@ func TestDeleteCustomerHandler(t *testing.T) {
 		response, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "customer not found", string(response))
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 
@@ -523,7 +523,7 @@ func TestDeleteCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "service error", response["error"])
-		// check all mocked it's worked
+		// check all mocked it's work on expected
 		mockService.AssertExpectations(t)
 	})
 }
