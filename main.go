@@ -18,7 +18,7 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	// Migrate the schema and insert a row of Customer
+	// Migrate the schema and insert rows of Customer
 	db.Migrator().CreateTable(&core.Customer{})
 	db.Create(&core.Customer{Name: "Fiat", Age: 24})
 	db.Create(&core.Customer{Name: "Anfat Nilaingan", Age: 40})
