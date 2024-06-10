@@ -25,6 +25,7 @@ func TestGormCustomerRepository_Save(t *testing.T) {
 	repo := NewGormCustomerRepository(db)
 
 	t.Run("successful save", func(t *testing.T) {
+		// setup Customer
 		customer := core.Customer{Name: "Fiat", Age: uint(24)}
 		// Save() for insert a Customer in database and check Error
 		err := repo.Save(customer)
@@ -37,7 +38,9 @@ func TestGormCustomerRepository_Save(t *testing.T) {
 	})
 
 	t.Run("(fail) name already exists", func(t *testing.T) {
+		// setup Customer
 		customer := core.Customer{Name: "Fiat", Age: uint(24)}
+		// Save() for insert a Customer in database and check Error
 		err := repo.Save(customer)
 		assert.Error(t, err)
 		assert.Equal(t, "name already exists", err.Error())
@@ -160,8 +163,11 @@ func TestGormCustomerRepository_Update(t *testing.T) {
 	})
 
 	t.Run("(fail) name already exists error", func(t *testing.T) {
+		// Save() for insert a Customer in database and check Error
 		err := repo.Save(customers[2])
 		assert.NoError(t, err)
+
+		// Update() for update a Customer by Id with Customer[1] in database and check Value/Error
 		updatedCustomer, err := repo.Update(uint(1), &customers[2])
 		assert.Equal(t, &core.Customer{}, updatedCustomer)
 		assert.Error(t, err)

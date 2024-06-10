@@ -182,9 +182,6 @@ func TestGetCustomerHandler(t *testing.T) {
 
 	// Failure case
 	t.Run("(fail) invalid customer ID", func(t *testing.T) {
-		// mock clear
-		mockService.ExpectedCalls = nil
-
 		// create a new HTTP GET request and send that will return value of Response(Status) with Error to check
 		req := httptest.NewRequest("GET", "/customers/invalid-id", nil)
 		resp, err := app.Test(req)
@@ -317,9 +314,6 @@ func TestUpdateCustomerHandler(t *testing.T) {
 
 	// Failure case
 	t.Run("(fail) invalid request body", func(t *testing.T) {
-		// clear mock
-		mockService.ExpectedCalls = nil
-
 		// create a new HTTP PUT request set JSON format and send that will return value of Response(Status) with Error to check
 		req := httptest.NewRequest("PUT", "/customers/1", bytes.NewBufferString(`{"name": 1 ,"age": "invalid"}`))
 		req.Header.Set("Content-Type", "application/json")
@@ -330,9 +324,6 @@ func TestUpdateCustomerHandler(t *testing.T) {
 	})
 
 	t.Run("(fail) invalid request", func(t *testing.T) {
-		// clear mock
-		mockService.ExpectedCalls = nil
-
 		// create a new HTTP PUT request set JSON format and send that will return value of Response(Status) with Error to check
 		req := httptest.NewRequest("PUT", "/customers/invalid", bytes.NewBufferString(`{"name": 1 ,"age": "invalid"}`))
 		resp, err := app.Test(req)
@@ -345,8 +336,6 @@ func TestUpdateCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "invalid request", response["error"])
-		// check all mocked it's work on expected
-		mockService.AssertExpectations(t)
 	})
 
 	t.Run("(fail) validation error", func(t *testing.T) {
@@ -458,9 +447,6 @@ func TestDeleteCustomerHandler(t *testing.T) {
 
 	// Failure case
 	t.Run("(fail) invalid request", func(t *testing.T) {
-		// mock clear
-		mockService.ExpectedCalls = nil
-
 		// create a new HTTP Delete request and send that will return value of Response(Status) with Error to check
 		req := httptest.NewRequest("DELETE", "/customers/invalid", nil)
 		resp, err := app.Test(req)
@@ -473,8 +459,6 @@ func TestDeleteCustomerHandler(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, "invalid request", response["error"])
-		// check all mocked it's work on expected
-		mockService.AssertExpectations(t)
 	})
 
 	t.Run("(fail) customer not found", func(t *testing.T) {
